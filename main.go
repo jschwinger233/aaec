@@ -1,16 +1,21 @@
 package main
 
 import (
+	log "github.com/juju/loggo"
 	flag "github.com/spf13/pflag"
 
 	"github.com/jschwinger23/aaec/app"
 	"github.com/jschwinger23/aaec/config"
 )
 
-var configFilename string
+var (
+	configFilename string
+	logger         log.Logger
+)
 
 func init() {
-	flag.String(configFilename, "aaec.yaml", "specify the config filename")
+	flag.StringVar(&configFilename, "config", "config.example.yaml", "specify the config filename")
+	logger = log.GetLogger("main")
 }
 
 func main() {
@@ -18,5 +23,5 @@ func main() {
 	conf := config.New(configFilename)
 	aaec := app.New(conf)
 	aaec.Run()
-	println("exited")
+	logger.Infof("exited")
 }

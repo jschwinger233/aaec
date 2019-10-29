@@ -6,9 +6,18 @@ import (
 	"syscall"
 
 	"github.com/jschwinger23/aaec/config"
+	log "github.com/juju/loggo"
+)
+
+var (
+	logger log.Logger
 )
 
 type AAEC struct {
+}
+
+func init() {
+	logger = log.GetLogger("app")
 }
 
 func New(config config.Config) *AAEC {
@@ -16,7 +25,7 @@ func New(config config.Config) *AAEC {
 }
 
 func (a *AAEC) Run() {
-	a.installSigalHandler()
+	go a.installSigalHandlers()
 }
 
 func (a *AAEC) stop() {
@@ -28,7 +37,7 @@ func (a *AAEC) wait() {
 func (a *AAEC) reload() {
 }
 
-func (a *AAEC) installSigalHandler() {
+func (a *AAEC) installSigalHandlers() {
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT)
 	signal.Notify(ch, syscall.SIGTERM)
@@ -37,17 +46,18 @@ func (a *AAEC) installSigalHandler() {
 	for {
 		switch sig := <-ch; sig {
 		case syscall.SIGINT, syscall.SIGTERM:
-			println("got signal 2 or 15 to graceful exit")
+			logger.Infof("got signal 2 or 15 to gracefully exit")
 			a.stop()
 			a.wait()
 			return
 
 		case syscall.SIGHUP:
-			println("got signal 1 to reload config")
+			logger.Infof("got signal 1 to reload config")
 			a.reload()
+			continue
 
 		default:
-			println("got signal and ignore:", sig)
+			logger.Infof("got signal and ignore:", sig)
 			continue
 		}
 	}
