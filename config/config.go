@@ -2,62 +2,39 @@ package config
 
 import (
 	"io/ioutil"
-	"strings"
-	"time"
+	"os"
 
-	log "github.com/juju/loggo"
 	"gopkg.in/yaml.v3"
 )
 
 var (
-	logger log.Logger
-	config Config = Config{
-		LogLevel: "INFO",
+	config CoreConfig = CoreConfig{
+		PidFile:     "$HOME/aaec.pid",
+		LogLevel:    "DEBUG",
+		LogFilename: "$HOME/aaec.log",
 	}
 )
 
-type Config struct {
-	LogLevel string `yaml:"log_level"`
-
-	Apps []struct {
-		Name     string
-		OnEvents []struct {
-			Kind      string
-			Callbacks []struct {
-				Command string
-				Delay   time.Duration
-			}
-		} `yaml:"on_events"`
-	}
+type CoreConfig struct {
+	PidFile     string `yaml:"pidfile"`
+	LogLevel    string `yaml:"log_level"`
+	LogFilename string `yaml:"log_filename"`
 }
 
-func init() {
-	logger = log.GetLogger("config")
-}
-
-func New(filename string) Config {
+func MustInit(filename string) CoreConfig {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logger.Criticalf("invalid config filename: %v", err)
-		panic("invalid config filename")
+		panic("invalid core config filename")
 	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
-		logger.Criticalf("invalid config: %v", err)
-		panic("invalid config")
+		panic("invalid core config")
 	}
 
-	var logLevel log.Level
-	switch l := strings.ToLower(config.LogLevel); l {
-	case "debug":
-		logLevel = log.DEBUG
-	case "info":
-		logLevel = log.INFO
-	case "error":
-		logLevel = log.ERROR
-	case "critical":
-		logLevel = log.CRITICAL
-	}
-	rootLogger := log.GetLogger("")
-	rootLogger.SetLogLevel(logLevel)
+	config.PidFile = os.ExpandEnv(config.PidFile)
+	config.LogFilename = os.ExpandEnv(config.LogFilename)
+	return config
+}
+
+func GetConfig() CoreConfig {
 	return config
 }

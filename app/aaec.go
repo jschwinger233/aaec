@@ -5,7 +5,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/jschwinger23/aaec/config"
 	log "github.com/juju/loggo"
 )
 
@@ -20,7 +19,7 @@ func init() {
 	logger = log.GetLogger("app")
 }
 
-func New(config config.Config) *AAEC {
+func New(filename string) *AAEC {
 	return &AAEC{}
 }
 

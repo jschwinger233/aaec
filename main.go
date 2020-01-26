@@ -1,27 +1,26 @@
 package main
 
 import (
-	log "github.com/juju/loggo"
 	flag "github.com/spf13/pflag"
 
 	"github.com/jschwinger23/aaec/app"
 	"github.com/jschwinger23/aaec/config"
+	"github.com/jschwinger23/aaec/logging"
 )
-
-var (
-	configFilename string
-	logger         log.Logger
-)
-
-func init() {
-	flag.StringVar(&configFilename, "config", "config.example.yaml", "specify the config filename")
-	logger = log.GetLogger("main")
-}
 
 func main() {
-	flag.Parse()
-	conf := config.New(configFilename)
-	aaec := app.New(conf)
+	coreConfigFilename, appConfigFilename := parseFlags()
+	config.MustInit(coreConfigFilename)
+	logging.MustInit()
+	aaec := app.New(appConfigFilename)
 	aaec.Run()
-	logger.Infof("exited")
+	logger := logging.GetLogger("main")
+	logger.Errorf("exited")
+}
+
+func parseFlags() (coreConfigFilename, appConfigFilename string) {
+	flag.StringVar(&coreConfigFilename, "core-config", "config.example.yaml", "specify the core config filename")
+	flag.StringVar(&appConfigFilename, "app-config", "app.example.yaml", "specify the app config filename")
+	flag.Parse()
+	return
 }
