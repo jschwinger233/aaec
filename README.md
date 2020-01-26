@@ -2,24 +2,65 @@
 
 To regulate dishonest and unethical practices by installed applications.
 
-## basic usage
+## server
+
+Application configure defines `system events` and app specific action.
 
 ```
+# app.ayml
+
+system_events:
+- bg:
+    define:
+    - type: timer
+      content:
+        action: start
+        duration: 10s
+    - type: adb
+      content:
+        command: 'pm disable {{.Package}}'
+    apply:
+    - com.tencent.mm
+    - com.gotokeep.keep.intl
+
 apps:
-  - name: com.tencent.mm:
-    on_events:
-      - kind: background
-        callbacks:
-          - command: pm disable com.tencent.mm
-            delay: 10s
+  com.tencent.mm:
+    fg:
+    - type: adb
+      content:
+        command: 'appops set {{.Package}} READ_SMS allow'
+    bg:
+    - type: adb
+      content:
+        command: 'appops set {{.Package}} READ_SMS ignore'
+    - super
 ```
 
-Then WeChat will be freezed in 10s after being put into background, unless it's put foreground within 10s.
+Core configure shows the general options:
+
+```
+# aaec.yaml
+
+pidfile: $HOME/aaec.pid
+log_level: debug
+log_filename: $HOME/aaec.log
+```
+
+Then we can run aaec server in Termux as a daemon.
+
+```
+aaecd --core-config aaec.yaml --app-config app.yaml
+```
+
+## client
+
+`aaectl` is able to accept multiple event in a row and read event body from file using `@` prefix.
+
+```
+aaectl --event-type type1,type2,type3 --event-body '{}' --event-body '{}' --event-body @event.body
+```
 
 ## installation
 
-```
-GO111MODULE=on go get -u github.com/jschwinger23/aaec
-```
-
-then copy binary `aaec` under `/data/data/com.termux/files/home/.termux/tasker/`, and set Tasker profile for triggering __App Changed Event__ (Tasker>=5.8 required), and voila!
+1. `GO111MODULE=on go get -u github.com/jschwinger23/aaec`
+2. create Tasker profile for __App Changed Changed__`
