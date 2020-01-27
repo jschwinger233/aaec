@@ -12,10 +12,10 @@ func main() {
 	coreConfigFilename, appConfigFilename := parseFlags()
 	config.MustInit(coreConfigFilename)
 	logging.MustInit()
+
 	aaec := app.New(appConfigFilename)
-	aaec.Run()
 	logger := logging.GetLogger("main")
-	logger.Errorf("exited")
+	logger.Errorf("exited: %v", aaec.Run())
 }
 
 func parseFlags() (coreConfigFilename, appConfigFilename string) {
