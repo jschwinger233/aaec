@@ -9,16 +9,15 @@ Application configure defines `system events` and app specific action.
 ```
 # app.ayml
 
-system_events:
+events:
 - bg:
     define:
-    - type: timer
-      content:
-        action: start
-        duration: 10s
-    - type: adb
-      content:
-        command: 'pm disable {{.Package}}'
+    - instruction: deny
+      extra:
+        operation: SMS_READ
+    - instruction: freeze
+      extra:
+        delay: 10s
     apply:
     - com.tencent.mm
     - com.gotokeep.keep.intl
@@ -26,13 +25,13 @@ system_events:
 apps:
   com.tencent.mm:
     fg:
-    - type: adb
-      content:
-        command: 'appops set {{.Package}} READ_SMS allow'
+    - instruction: allow
+      extra:
+        operation: SMS_READ
     bg:
-    - type: adb
-      content:
-        command: 'appops set {{.Package}} READ_SMS ignore'
+    - instruction: ignore
+      extra:
+        operation: SMS_WRITE
     - super
 ```
 
@@ -41,9 +40,11 @@ Core configure shows the general options:
 ```
 # aaec.yaml
 
-pidfile: $HOME/aaec.pid
+pidfile: $HOME/aaec/aaec.pid
 log_level: debug
-log_filename: $HOME/aaec.log
+log_filename: $HOME/aaec/aaec.log
+
+unix_bind: $HOME/aaec/aaec.sock
 ```
 
 Then we can run aaec server in Termux as a daemon.
@@ -57,7 +58,13 @@ aaecd --core-config aaec.yaml --app-config app.yaml
 `aaectl` is able to accept multiple event in a row and read event body from file using `@` prefix.
 
 ```
-aaectl --event-type type1,type2,type3 --event-body '{}' --event-body '{}' --event-body @event.body
+aaectl event create --app com.tencent.mm --type type1,type2 --body '{}' --body @event.body
+```
+
+Instead of send event, we can send instruction directly.
+
+```
+aaectl inst freeze --app com.tencent.mm --extra delay=10s
 ```
 
 ## installation
