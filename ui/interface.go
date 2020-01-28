@@ -8,11 +8,11 @@ import (
 var app Application
 
 type Application interface {
-	CreateEvents([]struct {
+	CreateEvent(struct {
 		ID        string
 		CreatedAt int64
+		Package   string
 		Type      string
-		Content   []byte
 	}) (err error)
 }
 

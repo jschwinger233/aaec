@@ -6,26 +6,40 @@ import (
 	"github.com/google/uuid"
 )
 
-type Event struct {
+type Meta struct {
 	ID        string `json:"id"`
 	CreatedAt int64  `json:"created_at"`
-	Type      string `json:"type"`
-	Content   []byte `json:"content"`
+	Package   string `json:"package"`
 }
 
-func NewEvent(typ string, content []byte) *Event {
-	return &Event{
+func NewMeta(pkg string) *Meta {
+	return &Meta{
 		ID:        uuid.New().String(),
 		CreatedAt: time.Now().Unix(),
-		Type:      typ,
-		Content:   []byte(content),
+		Package:   pkg,
 	}
 }
 
-type Events struct {
-	Events []*Event `json:"events"`
+type Event struct {
+	Meta
+	Type string `json:"type"`
 }
 
-func (es Events) AddEvent(e *Event) {
-	es.Events = append(es.Events, e)
+func NewEvent(pkg string, typ string) *Event {
+	return &Event{
+		Meta: *NewMeta(pkg),
+		Type: typ,
+	}
+}
+
+type Instruction struct {
+	Meta
+	Extra map[string]string `json:"extra"`
+}
+
+func NewInstruction(pkg string, extra map[string]string) *Instruction {
+	return &Instruction{
+		Meta:  *NewMeta(pkg),
+		Extra: extra,
+	}
 }

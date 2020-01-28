@@ -5,9 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/imroc/req"
 	"github.com/jschwinger23/aaec/ui/http"
-	"github.com/pkg/errors"
 	cli "github.com/urfave/cli/v2"
 )
 
@@ -31,17 +29,32 @@ func main() {
 						Usage: "create new events",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:  "types",
-								Usage: `event types, separated by comma, such as "adb,timer,adb"`,
+								Name:  "pkg",
+								Usage: "package name",
 							},
-							&cli.StringSliceFlag{
-								Name:  "contents",
-								Usage: `event contents, could set multiple times`,
+							&cli.StringFlag{
+								Name:  "type",
+								Usage: `event type, such as "bg" / "fg"`,
 							},
 						},
 						Action: createEvents,
 					},
 				},
+			},
+			&cli.Command{
+				Name:  "inst",
+				Usage: "instruction commands",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "pkg",
+						Usage: "package name",
+					},
+					&cli.StringSliceFlag{
+						Name:  "extra",
+						Usage: "instruction specific parameters, could set multiple times",
+					},
+				},
+				Action: instruct,
 			},
 		},
 	}
@@ -55,28 +68,19 @@ func main() {
 }
 
 func createEvents(c *cli.Context) (err error) {
-	types := strings.Split(c.String("types"), ",")
-	contents := c.StringSlice("contents")
-	if len(types) != len(contents) {
-		return errors.New("types not coincide with contents")
+	event := http.NewEvent(c.String("pkg"), c.String("type"))
+	uri := NewURI(c.String("endpoint"))
+	return uri.Compose("/events").Post(event)
+}
+
+func instruct(c *cli.Context) (err error) {
+	extra := map[string]string{}
+	for _, e := range c.StringSlice("extra") {
+		parts := strings.Split(e, ",")
+		extra[parts[0]] = parts[1]
 	}
 
-	events := http.Events{}
-	for i := 0; i < len(types); i++ {
-		event := http.NewEvent(types[i], []byte(contents[i]))
-		events.AddEvent(event)
-		fmt.Printf("ui.cmd generated event: %v", event)
-	}
-
-	uri := c.String("endpoint") + "/events"
-	r, err := req.Post(uri, req.BodyJSON(&events))
-	if err != nil {
-		return errors.Wrap(err, "ui.http.client failed to post events")
-	}
-	resp := r.Response()
-	if resp.StatusCode > 300 {
-		return errors.Errorf("ui.http.client http status exception: %v", resp.StatusCode)
-	}
-
-	return nil
+	instruction := http.NewInstruction(c.String("pkg"), extra)
+	uri := NewURI(c.String("endpoint"))
+	return uri.Compose("/inst").Post(instruction)
 }

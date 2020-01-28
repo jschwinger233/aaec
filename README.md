@@ -58,13 +58,13 @@ aaecd --core-config aaec.yaml --app-config app.yaml
 `aaectl` is able to accept multiple event in a row and read event body from file using `@` prefix.
 
 ```
-aaectl event create --app com.tencent.mm --type type1,type2 --body '{}' --body @event.body
+aaectl event create --pkg com.tencent.mm --type bg
 ```
 
 Instead of send event, we can send instruction directly.
 
 ```
-aaectl inst freeze --app com.tencent.mm --extra delay=10s
+aaectl inst freeze --pkg com.tencent.mm --extra delay=10s
 ```
 
 ## installation
