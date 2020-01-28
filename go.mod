@@ -3,7 +3,9 @@ module github.com/jschwinger23/aaec
 go 1.13
 
 require (
+	github.com/gin-gonic/gin v1.5.0
 	github.com/google/uuid v1.1.1
+	github.com/imroc/req v0.3.0
 	github.com/juju/loggo v0.0.0-20190526231331-6e530bcce5d8
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/pflag v1.0.5

@@ -9,11 +9,11 @@ var app Application
 
 type Application interface {
 	CreateEvents([]struct {
-		ID       string
-		CreateAt int64
-		Type     string
-		Content  []byte
-	}) (status string, err error)
+		ID        string
+		CreatedAt int64
+		Type      string
+		Content   []byte
+	}) (err error)
 }
 
 func InitApplication(a Application) error {
