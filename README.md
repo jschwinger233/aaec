@@ -4,7 +4,7 @@ To regulate dishonest and unethical practices by installed applications.
 
 ## server
 
-Application configure defines `system events` and app specific action.
+Application configure defines `events` and app specific action.
 
 ```
 # app.ayml
@@ -18,11 +18,13 @@ events:
     - instruction: freeze
       extra:
         delay: 10s
+
     apply:
     - com.tencent.mm
     - com.gotokeep.keep.intl
 
 apps:
+
   com.tencent.mm:
     fg:
     - instruction: allow
@@ -61,7 +63,7 @@ aaecd --core-config aaec.yaml --app-config app.yaml
 aaectl event create --pkg com.tencent.mm --type bg
 ```
 
-Instead of send event, we can send instruction directly.
+Instead of sending event, we can send instruction directly.
 
 ```
 aaectl inst freeze --pkg com.tencent.mm --extra delay=10s
@@ -70,4 +72,4 @@ aaectl inst freeze --pkg com.tencent.mm --extra delay=10s
 ## installation
 
 1. `GO111MODULE=on go get -u github.com/jschwinger23/aaec`
-2. create Tasker profile for __App Changed Changed__`
+2. create Tasker profile for __App Changed Changed__
