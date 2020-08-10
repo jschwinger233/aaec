@@ -1,5 +1,6 @@
 import os
 import stat
+import signal
 import atexit
 
 PIDFILE_DIR = os.getenv('PIDFILE_DIR', default=os.path.expanduser('~/aaec/'))
@@ -12,6 +13,11 @@ def write(ident: str):
         stat.S_IRUSR | stat.S_IWUSR
     )
     atexit.register(lambda: os.remove(pidfile))
+    def term_handler(_, __):
+        os.remove(pidfile)
+        os._exit(0)
+
+    signal.signal(signal.SIGTERM, term_handler)
     os.write(fd, b'%d' % os.getpid())
 
 
