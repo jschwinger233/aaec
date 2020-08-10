@@ -1,9 +1,0 @@
-log_level: debug
-
-apps:
-  - name: com.tencent.mm
-    on_events:
-      - kind: background
-        callbacks:
-          - command: pm disable com.tencent.mm
-            delay: 10s

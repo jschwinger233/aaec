@@ -2,74 +2,20 @@
 
 To regulate dishonest and unethical practices by installed applications.
 
-## server
+# Make it easy
 
-Application configure defines `events` and app specific action.
+## `aaec sub $package`
 
-```
-# app.ayml
+all subscribed packages would be freezed(`pm disable $package`) once being put background more than 60 seconds.
 
-events:
-- bg:
-    define:
-    - instruction: deny
-      extra:
-        operation: SMS_READ
-    - instruction: freeze
-      extra:
-        delay: 10s
+## `aaec unsub $package`
 
-    apply:
-    - com.tencent.mm
-    - com.gotokeep.keep.intl
+unsubscribe packages got alive after being backgrounded.
 
-apps:
+## `aaec bg $package`
 
-  com.tencent.mm:
-    fg:
-    - instruction: allow
-      extra:
-        operation: SMS_READ
-    bg:
-    - instruction: ignore
-      extra:
-        operation: SMS_WRITE
-    - super
-```
+notify specific package changes status from fg to bg.
 
-Core configure shows the general options:
+## `aaec fg $package`
 
-```
-# aaec.yaml
-
-pidfile: $HOME/aaec/aaec.pid
-log_level: debug
-log_filename: $HOME/aaec/aaec.log
-
-unix_bind: $HOME/aaec/aaec.sock
-```
-
-Then we can run aaec server in Termux as a daemon.
-
-```
-aaecd --core-config aaec.yaml --app-config app.yaml
-```
-
-## client
-
-`aaectl` is able to accept multiple event in a row and read event body from file using `@` prefix.
-
-```
-aaectl event create --pkg com.tencent.mm --type bg
-```
-
-Instead of sending event, we can send instruction directly.
-
-```
-aaectl inst freeze --pkg com.tencent.mm --extra delay=10s
-```
-
-## installation
-
-1. `GO111MODULE=on go get -u github.com/jschwinger23/aaec`
-2. create Tasker profile for __App Changed Changed__
+notify specific package changes status from bg to fg.
