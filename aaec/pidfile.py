@@ -14,8 +14,7 @@ def write(ident: str):
     )
     atexit.register(lambda: os.remove(pidfile))
     def term_handler(_, __):
-        os.remove(pidfile)
-        os._exit(0)
+        raise SystemError
 
     signal.signal(signal.SIGTERM, term_handler)
     os.write(fd, b'%d' % os.getpid())

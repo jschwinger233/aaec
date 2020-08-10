@@ -25,11 +25,11 @@ def check(package: str) -> bool:
 
 @contextlib.contextmanager
 def load_pickle():
-    with open(PICKLE_FILENAME, 'rb') as f:
+    with open(PICKLE_FILENAME, 'r+b') as f:
         try:
             subscribed = pickle.load(f)
         except EOFError:
             subscribed = set()
         yield subscribed
-    with open(PICKLE_FILENAME, 'w+b') as f:
+        f.seek(0)
         pickle.dump(subscribed, f)
