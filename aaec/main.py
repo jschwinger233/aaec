@@ -1,6 +1,8 @@
 import os
 import time
 import click
+import signal
+import atexit
 import subprocess
 
 import aaec.pidfile as pidfile
@@ -9,7 +11,13 @@ import aaec.subscribe as subscribe
 
 @click.group(context_settings=dict(help_option_names=['-h', '--help']))
 def cli():
-    pass
+    def term_handler(_, __):
+        raise SystemError
+
+    signal.signal(signal.SIGTERM, term_handler)
+
+    subprocess.run('termux-wake-lock')
+    atexit.register(lambda: subprocess.run('termux-wake-unlock'))
 
 
 @cli.command()
