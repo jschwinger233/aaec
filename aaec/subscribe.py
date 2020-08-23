@@ -14,17 +14,25 @@ FLOCK_FILENAME = os.getenv(
 def sub(package: str):
     with load_pickle() as subscribed:
         subscribed.add(package)
+        subscribed[package] = 10
 
 
 def unsub(package: str):
     with load_pickle() as subscribed:
         with contextlib.suppress(KeyError):
-            subscribed.remove(package)
+            del subscribed[package]
 
 
-def check(package: str) -> bool:
+def check(package: str) -> int:
     with load_pickle() as subscribed:
-        return package in subscribed
+        return subscribed[package]
+
+
+def prolong(package: str, incr: int):
+    with load_pickle() as subscribed:
+        subscribed[package] += incr
+        if subscribed[package] < 0:
+            subscribed[package] = 0
 
 
 @contextlib.contextmanager

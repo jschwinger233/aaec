@@ -23,11 +23,11 @@ def cli():
 @cli.command()
 @click.argument('package')
 def bg(package: str):
-    if not subscribe.check(package):
+    if not (delay := subscribe.check(package)):
         return
 
     pidfile.write(package)
-    time.sleep(60)
+    time.sleep(delay)
     subprocess.run(f'sudo pm disable {package}'.split())
 
 
@@ -54,3 +54,13 @@ def sub(package: str):
 @click.argument('package')
 def unsub(package: str):
     subscribe.unsub(package)
+
+
+@cli.command()
+@click.argument('package')
+@click.argument('incr', type=int)
+def prolong(package: str, incr: int):
+    if not subscribe.check(package):
+        return
+
+    subscribe.prolong(package, incr)
